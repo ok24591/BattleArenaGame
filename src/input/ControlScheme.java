@@ -1,4 +1,4 @@
-package input;
+/*package input;
 
 import javafx.scene.input.KeyCode;
 import java.util.HashMap;
@@ -42,4 +42,4 @@ public class ControlScheme {
     public Map<Action, KeyCode> getAllControls() {
         return new HashMap<>(controls);
     }
-}
+}*/

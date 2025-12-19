@@ -23,6 +23,7 @@ import javafx.animation.ScaleTransition;
 import javafx.util.Duration;
 import audio.SoundEffect;
 import audio.BackgroundMusic;
+import config.GameConfig;
 
 public class PauseMenuUI {
     private StackPane container;
@@ -35,6 +36,8 @@ public class PauseMenuUI {
     private Runnable onExit;
     private ToggleButton musicToggle;
     private ToggleButton soundToggle;
+    private ToggleButton restrictionToggle;
+    private Label restrictionLabel;
     private BackgroundMusic backgroundMusic;
 
     private final Color BACKGROUND_COLOR = Color.rgb(0, 0, 0, 0.92);
@@ -134,10 +137,11 @@ public class PauseMenuUI {
 
         VBox titleSection = createTitleSection();
         VBox audioSection = createAudioControlsSection();
+        VBox gameplaySection = createGameplaySection();
         VBox buttonsSection = createButtonsSection();
         HBox hintSection = createHintSection();
 
-        content.getChildren().addAll(titleSection, audioSection, buttonsSection, hintSection);
+        content.getChildren().addAll(titleSection, audioSection, gameplaySection, buttonsSection, hintSection);
         return content;
     }
 
@@ -192,9 +196,9 @@ public class PauseMenuUI {
     }
 
     private VBox createTitleSection() {
-        VBox titleSection = new VBox(10);
+        VBox titleSection = new VBox(8);
         titleSection.setAlignment(Pos.CENTER);
-        titleSection.setPadding(new Insets(0, 0, 5, 0));
+        titleSection.setPadding(new Insets(30, 0, 0, 0));
 
         Text title = new Text("GAME PAUSED");
         title.setFont(TITLE_FONT);
@@ -317,7 +321,6 @@ public class PauseMenuUI {
                 toggle.setText("ON");
                 if (isMusic) {
                     if (backgroundMusic != null) {
-
                         backgroundMusic.setMusicEnabled(true);
                     }
                 } else {
@@ -328,7 +331,6 @@ public class PauseMenuUI {
                 toggle.setText("OFF");
                 if (isMusic) {
                     if (backgroundMusic != null) {
-
                         backgroundMusic.setMusicEnabled(false);
                     }
                 } else {
@@ -346,6 +348,58 @@ public class PauseMenuUI {
 
         control.getChildren().addAll(titleLabel, toggle);
         return control;
+    }
+
+    private VBox createGameplaySection() {
+        VBox gameplaySection = new VBox(15);
+        gameplaySection.setAlignment(Pos.CENTER);
+        gameplaySection.setPadding(new Insets(15, 0, 20, 0));
+
+        Label sectionTitle = new Label("GAMEPLAY SETTINGS");
+        sectionTitle.setFont(CONTROL_FONT);
+        sectionTitle.setTextFill(SECONDARY_TEXT);
+
+        Rectangle sectionDivider = new Rectangle(200, 2);
+        sectionDivider.setFill(Color.web("#FFFFFF", 0.15));
+
+        HBox restrictionContainer = new HBox(15);
+        restrictionContainer.setAlignment(Pos.CENTER);
+
+        restrictionLabel = new Label("Half-Screen Restriction");
+        restrictionLabel.setFont(Font.font("Segoe UI", FontWeight.MEDIUM, 12));
+        restrictionLabel.setTextFill(PRIMARY_TEXT);
+
+        restrictionToggle = new ToggleButton();
+        restrictionToggle.setPrefSize(TOGGLE_WIDTH, TOGGLE_HEIGHT);
+        restrictionToggle.setSelected(GameConfig.HALF_SCREEN_RESTRICTION);
+        updateRestrictionToggle();
+
+        restrictionToggle.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            GameConfig.setHalfScreenRestriction(newVal);
+            updateRestrictionToggle();
+            SoundEffect.MENU_SELECT.play();
+        });
+
+        restrictionContainer.getChildren().addAll(restrictionLabel, restrictionToggle);
+        gameplaySection.getChildren().addAll(sectionTitle, sectionDivider, restrictionContainer);
+
+        return gameplaySection;
+    }
+
+    private void updateRestrictionToggle() {
+        boolean enabled = GameConfig.HALF_SCREEN_RESTRICTION;
+        String onStyle = String.format("-fx-background-color: linear-gradient(to bottom, %s, %s); -fx-text-fill: white; -fx-font-size: 14; -fx-font-weight: bold; -fx-background-radius: %f; -fx-border-radius: %f; -fx-border-color: %s; -fx-border-width: 2; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, %s55, 10, 0, 0, 2);", toHexString(BUTTON_DANGER), toHexString(BUTTON_DANGER.darker()), TOGGLE_HEIGHT / 2, TOGGLE_HEIGHT / 2, toHexString(BUTTON_DANGER.brighter()), toHexString(BUTTON_DANGER));
+        String offStyle = String.format("-fx-background-color: linear-gradient(to bottom, %s, %s); -fx-text-fill: white; -fx-font-size: 14; -fx-font-weight: bold; -fx-background-radius: %f; -fx-border-radius: %f; -fx-border-color: %s; -fx-border-width: 2; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, %s55, 10, 0, 0, 2);", toHexString(BUTTON_SUCCESS), toHexString(BUTTON_SUCCESS.darker()), TOGGLE_HEIGHT / 2, TOGGLE_HEIGHT / 2, toHexString(BUTTON_SUCCESS.brighter()), toHexString(BUTTON_SUCCESS));
+
+        if (enabled) {
+            restrictionToggle.setStyle(onStyle);
+            restrictionToggle.setText("ON");
+            restrictionLabel.setText("Half-Screen Restriction");
+        } else {
+            restrictionToggle.setStyle(offStyle);
+            restrictionToggle.setText("OFF");
+            restrictionLabel.setText("Full Movement");
+        }
     }
 
     private VBox createButtonsSection() {
@@ -493,10 +547,10 @@ public class PauseMenuUI {
             container.setOpacity(0);
 
             if (backgroundMusic != null) {
-
                 musicToggle.setSelected(backgroundMusic.isMusicEnabled());
             }
             soundToggle.setSelected(AudioManager.getInstance().getSoundEffectVolume() > 0);
+            restrictionToggle.setSelected(GameConfig.HALF_SCREEN_RESTRICTION);
 
             FadeTransition fadeIn = new FadeTransition(Duration.millis(350), container);
             fadeIn.setFromValue(0);

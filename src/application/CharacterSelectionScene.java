@@ -26,6 +26,7 @@ import javafx.beans.property.StringProperty;
 import audio.BackgroundMusic;
 import audio.SoundEffect;
 import audio.AudioManager;
+import config.GameConfig;
 
 public class CharacterSelectionScene {
     private Scene scene;
@@ -41,8 +42,11 @@ public class CharacterSelectionScene {
     private BackgroundMusic backgroundMusic;
     private Button musicToggleButton;
     private Button soundToggleButton;
+    private Button restrictionToggleButton;
     private boolean musicOn = true;
     private boolean soundOn = true;
+    private boolean halfScreenRestriction = GameConfig.HALF_SCREEN_RESTRICTION;
+    private VBox mainContainer;
 
     private final Color BACKGROUND_COLOR = Color.web("#0A0A0F");
     private final Color CARD_COLOR = Color.web("#151820");
@@ -52,7 +56,6 @@ public class CharacterSelectionScene {
     private final Color PRIMARY_TEXT = Color.web("#E0E0E0");
     private final Color SECONDARY_TEXT = Color.web("#8A8A8A");
     private final String[] CHARACTER_TYPES = {"Warrior", "Mage", "Archer", "Assassin"};
-
     private final String WARRIOR_ICON = "/icon/warrior.jpg";
     private final String MAGE_ICON = "/icon/mage.jpg";
     private final String ARCHER_ICON = "/icon/archer.jpg";
@@ -68,7 +71,7 @@ public class CharacterSelectionScene {
         StackPane root = new StackPane();
         createBackground(root);
 
-        VBox mainContainer = new VBox(15);
+        mainContainer = new VBox(15);
         mainContainer.setAlignment(Pos.TOP_CENTER);
         mainContainer.setPadding(new Insets(20, 20, 20, 20));
         mainContainer.setMaxWidth(1200);
@@ -403,13 +406,12 @@ public class CharacterSelectionScene {
         container.setPadding(new Insets(10, 0, 10, 0));
 
         musicToggleButton = createMusicToggleButton();
-
         soundToggleButton = createSoundToggleButton();
-
+        restrictionToggleButton = createRestrictionToggleButton();
         Button startButton = createStartButton();
         Button exitButton = createExitButton();
 
-        container.getChildren().addAll(musicToggleButton, soundToggleButton, startButton, exitButton);
+        container.getChildren().addAll(musicToggleButton, soundToggleButton, restrictionToggleButton, startButton, exitButton);
         return container;
     }
 
@@ -497,6 +499,46 @@ public class CharacterSelectionScene {
         });
 
         return button;
+    }
+
+    private Button createRestrictionToggleButton() {
+        Button button = new Button(halfScreenRestriction ? "🚫 HALF" : "🌐 FULL");
+        button.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+        button.setPrefSize(140, 40);
+
+        updateRestrictionButtonStyle(button);
+
+        button.setOnAction(e -> {
+            halfScreenRestriction = !halfScreenRestriction;
+            GameConfig.setHalfScreenRestriction(halfScreenRestriction);
+            button.setText(halfScreenRestriction ? "🚫 HALF" : "🌐 FULL");
+            updateRestrictionButtonStyle(button);
+            SoundEffect.MENU_SELECT.play();
+        });
+
+        return button;
+    }
+
+    private void updateRestrictionButtonStyle(Button button) {
+        if (halfScreenRestriction) {
+            button.setStyle("-fx-background-color: #FF2A6D; " +
+                    "-fx-text-fill: white; " +
+                    "-fx-background-radius: 8; " +
+                    "-fx-border-radius: 8; " +
+                    "-fx-border-color: #FF4A8D; " +
+                    "-fx-border-width: 2; " +
+                    "-fx-cursor: hand; " +
+                    "-fx-effect: dropshadow(three-pass-box, rgba(255,42,109,0.3), 12, 0, 0, 4);");
+        } else {
+            button.setStyle("-fx-background-color: #00D4FF; " +
+                    "-fx-text-fill: #0A0A0F; " +
+                    "-fx-background-radius: 8; " +
+                    "-fx-border-radius: 8; " +
+                    "-fx-border-color: #00B8E6; " +
+                    "-fx-border-width: 2; " +
+                    "-fx-cursor: hand; " +
+                    "-fx-effect: dropshadow(three-pass-box, rgba(0,212,255,0.3), 12, 0, 0, 4);");
+        }
     }
 
     private Button createStartButton() {
@@ -724,5 +766,7 @@ public class CharacterSelectionScene {
         player2IconContainer = null;
         musicToggleButton = null;
         soundToggleButton = null;
+        restrictionToggleButton = null;
+        mainContainer = null;
     }
 }

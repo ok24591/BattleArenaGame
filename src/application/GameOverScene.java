@@ -151,6 +151,19 @@ public class GameOverScene {
         scoreSection.setPadding(new Insets(20));
         scoreSection.setStyle("-fx-background-color: #2A2F36; -fx-background-radius: 15;");
 
+        HBox modeIndicator = new HBox(10);
+        modeIndicator.setAlignment(Pos.CENTER);
+
+        Text modeText = new Text("Game Mode: ");
+        modeText.setFont(Font.font("Arial", 12));
+        modeText.setFill(SECONDARY_TEXT);
+
+        Text modeValue = new Text(config.GameConfig.HALF_SCREEN_RESTRICTION ? "Half-Screen Restriction" : "Full Movement");
+        modeValue.setFont(Font.font("Arial", FontWeight.BOLD, 12));
+        modeValue.setFill(config.GameConfig.HALF_SCREEN_RESTRICTION ? PLAYER2_COLOR : PLAYER1_COLOR);
+
+        modeIndicator.getChildren().addAll(modeText, modeValue);
+
         HBox mainScore = new HBox(30);
         mainScore.setAlignment(Pos.CENTER);
 
@@ -164,7 +177,7 @@ public class GameOverScene {
         mainScore.getChildren().addAll(player1ScoreBox, vsText, player2ScoreBox);
 
         HBox scoreBreakdown = createScoreBreakdown();
-        scoreSection.getChildren().addAll(mainScore, scoreBreakdown);
+        scoreSection.getChildren().addAll(modeIndicator, mainScore, scoreBreakdown);
         return scoreSection;
     }
 

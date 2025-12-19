@@ -337,8 +337,60 @@ public class GameScene {
         boundaryRight.setEffect(new Glow(0.5));
         gamePane.getChildren().add(boundaryRight);
 
+        if (config.GameConfig.HALF_SCREEN_RESTRICTION) {
+            createHalfScreenIndicator();
+        } else {
+            createFullMovementIndicator();
+        }
+
         effectsLayer = new Pane();
         gamePane.getChildren().add(effectsLayer);
+    }
+
+    private void createHalfScreenIndicator() {
+        Text leftText = new Text("PLAYER 1 AREA");
+        leftText.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+        leftText.setFill(Color.web("#00D4FF"));
+        leftText.setOpacity(0.6);
+        leftText.setX(arenaWidth * 0.25 - 60);
+        leftText.setY(40);
+
+        Text rightText = new Text("PLAYER 2 AREA");
+        rightText.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+        rightText.setFill(Color.web("#FF2A6D"));
+        rightText.setOpacity(0.6);
+        rightText.setX(arenaWidth * 0.75 - 60);
+        rightText.setY(40);
+
+        gamePane.getChildren().addAll(leftText, rightText);
+
+        Rectangle leftArea = new Rectangle(arenaWidth / 2, arenaHeight);
+        leftArea.setFill(Color.web("#00D4FF", 0.05));
+        leftArea.setStroke(Color.web("#00D4FF", 0.2));
+        leftArea.setStrokeWidth(2);
+
+        Rectangle rightArea = new Rectangle(arenaWidth / 2, arenaHeight);
+        rightArea.setX(arenaWidth / 2);
+        rightArea.setFill(Color.web("#FF2A6D", 0.05));
+        rightArea.setStroke(Color.web("#FF2A6D", 0.2));
+        rightArea.setStrokeWidth(2);
+
+        gamePane.getChildren().addAll(leftArea, rightArea);
+    }
+
+    private void createFullMovementIndicator() {
+        Text fullText = new Text("FULL MOVEMENT MODE");
+        fullText.setFont(Font.font("Arial", FontWeight.BOLD, 16));
+        LinearGradient gradient = new LinearGradient(
+                0, 0, 1, 0, true, CycleMethod.NO_CYCLE,
+                new Stop(0, Color.web("#00D4FF")),
+                new Stop(0.5, Color.WHITE),
+                new Stop(1, Color.web("#FF2A6D"))
+        );
+        fullText.setFill(gradient);
+        fullText.setX(arenaWidth / 2 - 100);
+        fullText.setY(40);
+        gamePane.getChildren().add(fullText);
     }
 
     private void createUserInterface() {
@@ -1060,18 +1112,25 @@ public class GameScene {
     private void constrainPlayerToBounds(Fighter player) {
         double x = player.getPosition().getX();
         double y = player.getPosition().getY();
-
         double collisionRadius = player.getCollisionRadius();
         double minX = collisionRadius;
         double maxX = arenaWidth - collisionRadius;
         double minY = collisionRadius;
         double maxY = arenaHeight - collisionRadius;
 
+        if (config.GameConfig.HALF_SCREEN_RESTRICTION) {
+            if (player.isPlayer1()) {
+                maxX = (arenaWidth / 2) - 25;
+            } else {
+                minX = (arenaWidth / 2) + 25;
+            }
+        }
+
         double newX = Math.max(minX, Math.min(maxX, x));
         double newY = Math.max(minY, Math.min(maxY, y));
 
         if (newX != x || newY != y) {
-            player.setPosition(new Vector2D(newX, newY));
+            player.setPosition(new physics.Vector2D(newX, newY));
         }
     }
 
