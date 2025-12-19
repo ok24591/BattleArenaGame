@@ -26,4 +26,34 @@ public class WeaponManager {
         return availableWeapons.get(currentWeaponIndex);
     }
 
+    public void switchToNextWeapon() {
+        currentWeaponIndex = (currentWeaponIndex + 1) % availableWeapons.size();
+    }
+
+    public void switchToPreviousWeapon() {
+        currentWeaponIndex = (currentWeaponIndex - 1 + availableWeapons.size()) % availableWeapons.size();
+    }
+
+    public void switchToWeapon(int index) {
+        if (index >= 0 && index < availableWeapons.size()) {
+            currentWeaponIndex = index;
+        }
+    }
+
+    public List<Weapon> getAvailableWeapons() {
+        return new ArrayList<>(availableWeapons);
+    }
+
+    public String getCurrentWeaponName() {
+        return getCurrentWeapon().getName();
+    }
+
+    public void switchToWeapon(String weaponName) {
+        for (int i = 0; i < availableWeapons.size(); i++) {
+            if (availableWeapons.get(i).getName().equalsIgnoreCase(weaponName)) {
+                currentWeaponIndex = i;
+                break;
+            }
+        }
+    }
 }
